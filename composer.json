@@ -1,0 +1,26 @@
+{
+    "name": "brewinteractive/fakend",
+    "description" : "",
+    "type": "library",
+    "keywords": ["fakend", "fixtures", "data", "ember", "mock-api"],
+    "authors": [
+        {
+            "name": "BrewInteractive",
+            "email": "robot@brewww.com"
+        }
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^5.3.3|^7.0",
+        "league/fractal": "~0.14.0",
+        "fzaninotto/faker": "*",
+        "danielstjules/stringy": "~2.3",
+        "memio/memio" :"~1.0",
+        "symfony/console": "*"
+    },
+    "autoload": {
+        "psr-4": {
+            "Fakend\\": "/"
+        }
+    }
+}
