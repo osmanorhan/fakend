@@ -12,11 +12,12 @@
     "license": "MIT",
     "require": {
         "php": "^5.3.3|^7.0",
-        "league/fractal": "~0.14.0",
+        "league/fractal": "~0.17.0",
         "fzaninotto/faker": "*",
-        "danielstjules/stringy": "~2.3",
-        "memio/memio" :"~1.0",
-        "symfony/console": "*"
+        "danielstjules/stringy": "~3.1.0",
+        "memio/memio" :"~2.0",
+        "symfony/console": "*",
+        "silex/silex": "~2.0"
     },
     "autoload": {
         "psr-4": {
