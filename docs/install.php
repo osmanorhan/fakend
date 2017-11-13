@@ -18,6 +18,9 @@ function initFakend($argv)
             exec('mkdir api/Models', $modelDirOut, $modelDirReturn);
         }
         exec('ln -s vendor/brewinteractive/fakend/Bin/parser.php parser');
+        exec('cp vendor/brewinteractive/fakend/samples/docker-compose.yml api/docker-compose.yml', $dockerOut, $dockerReturn);
+        exec('cp -R vendor/brewinteractive/fakend/samples/nginx api/nginx', $nginxOut, $nginxReturn);
+        exec('cp -R vendor/brewinteractive/fakend/samples/php api/php', $phpOut, $phpReturn);
         exec('cp vendor/brewinteractive/fakend/samples/index.php api/index.php', $copyIndexOut, $copyIndexReturn);
         $loadclasses = fopen("api/Schemas/loadclasses.php", "w");
         fwrite($loadclasses, "<?php\n");
