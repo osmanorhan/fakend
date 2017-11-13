@@ -1,15 +1,17 @@
 # Fakend
 -------
-Fakend provides mock api for ember-data. It has been written in PHP and sits on a couple of great php libs such as thephpleague's fractal[1], fzaninotto's faker[2] and memio's generator lib[3].
+Fakend provides mock api from json schemas. It has been written in PHP and sits on a couple of great php libs such as thephpleague's fractal[1], fzaninotto's faker[2] and memio's generator lib[3].
 1. <https://github.com/thephpleague/fractal>
 2. <https://github.com/fzaninotto/Faker>
 3. <https://github.com/memio/memio>
 
+It had been designed to provide mock API specifically for ember-data but this update changes model notation from ember-data model to global JSON annotation to provide more flexible mock API backend for all frontend apps.
+
 #### How to get
 
 ```sh
-# Composer
-composer require brewinteractive/fakend
+# Init Fakend
+curl -s https://fakend.com/install | php
 ```
 #### How to define models for Fakend
 
@@ -18,27 +20,63 @@ You need to generate model files in ember first. Then you need to add class prop
 # post.js
 
 ```js
-import Model from 'ember-data/model';
-
-export default Model.extend({
-	title: DS.attr('string'), /* {"type":"title", "parameters": {"length": 4}} */
-	body: DS.attr('string'), /* {"type":"description", "parameters": {"length": 200, "html": true}} */
-	tag: DS.attr('string'), /* {"type":"random", "parameters": {"values": ["human", "robot", "android"]}} */
-	date: DS.attr('date'), /* {"type":"date", "parameters": {"from":"-4 year","to":"+1 year"}} */
-	count: DS.attr('number'), /* {"type":"numberBetween", "parameters": {"min": 10,"max":1000}} */
-	url: DS.attr('string'),  /* {"type":"url", "parameters": {}} */
-	author: DS.belongsTo('author'), /* {"type":"author", "parameters": {"required": true}} */
-	comments: DS.hasMany('comment'), /* {"type":"comment", "parameters": {"required": false}} */
-});
+{
+    "attrs": [
+        {
+            "fieldName": "title",
+            "attributeType": "title",
+            "parameters": {"length":4}
+        },
+        {
+            "fieldName": "body",
+            "attributeType": "description",
+            "parameters": {"length":200,"html":true}
+        },
+        {
+            "fieldName": "tag",
+            "attributeType": "random",
+            "parameters": {"values": ["human","robot","android"]}
+        },
+        {
+            "fieldName": "date",
+            "attributeType": "date",
+            "parameters": {"from":"-4 year","to":"+1 year"}
+        },
+        {
+            "fieldName": "count",
+            "attributeType": "numberBetween",
+            "parameters": {"min":10,"max":1000}
+        },
+        {
+            "fieldName": "url",
+            "attributeType": "url",
+            "parameters": "{}"
+        }
+    ],
+    "belongsTo": [
+        {
+            "fieldName": "author",
+            "attributeType": "author",
+            "parameters": {"required":true}
+        }
+    ],
+    "hasMany": [
+        {
+            "fieldName": "comments",
+            "attributeType": "comment",
+            "parameters": {"required":false}
+        }
+    ]
+}
 ```
 # author.js
 ```js
 import Model from 'ember-data/model';
 
 export default Model.extend({
-	firstName: DS.attr('string'), /* {"type":"firstName", "parameters": {}} */
-	lastName: DS.attr('string'), /* {"type":"lastName", "parameters": {}} */
-	avatar: DS.attr('string'), /* {"type":"imageURL", "parameters": {"type":"avatar","required":false}} */
+    firstName: DS.attr('string'), /* {"type":"firstName", "parameters": {}} */
+    lastName: DS.attr('string'), /* {"type":"lastName", "parameters": {}} */
+    avatar: DS.attr('string'), /* {"type":"imageURL", "parameters": {"type":"avatar","required":false}} */
 });
 ```
 # comment.js
@@ -46,8 +84,8 @@ export default Model.extend({
 import Model from 'ember-data/model';
 
 export default Model.extend({
-	post: DS.belongsTo('post'), /* {"type":"post", "parameters": {"required": true}} */
-	comment: DS.attr('string'), /* {"type":"description", "parameters": {"length":50}} */
+    post: DS.belongsTo('post'), /* {"type":"post", "parameters": {"required": true}} */
+    comment: DS.attr('string'), /* {"type":"description", "parameters": {"length":50}} */
 });
 
 ```
