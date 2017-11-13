@@ -18,33 +18,27 @@ use Stringy\Stringy as S;
 
 class EmberDataParser extends Command
 {
-    protected $path = '';
+    protected $path = 'api/Models/';
     protected function configure()
     {
         $this
             ->setName('generate')
-            ->setDescription('Generate Ember Data')
-            ->addArgument(
-                'path',
-                InputArgument::REQUIRED,
-                'Ember models path'
-            )
+            ->setDescription('Generate Data')
             ->addArgument(
                 'name',
                 InputArgument::OPTIONAL,
-                'Ember model name'
+                'Model name'
             )
         ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $this->path = $input->getArgument('path');
         if($input->getArgument('name'))
         {
              $this->createClass($input->getArgument('name'));
         } else {
-            if ($handle = opendir($input->getArgument('path')))
+            if ($handle = opendir($this->path))
             {
                 while (false !== ($entry = readdir($handle))) {
                     $this->createClass($entry);
@@ -111,7 +105,6 @@ class EmberDataParser extends Command
     }
     protected function parseModelSchema($modelFile)
     {
-        $filePath = $this->path.$modelFile;
         $result = array();
         $model = file_get_contents($this->path.$modelFile);
         $json = json_decode($model, true);

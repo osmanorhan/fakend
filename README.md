@@ -11,7 +11,7 @@ It had been designed to provide mock API specifically for ember-data but this up
 
 ```sh
 # Init Fakend
-curl -s https://fakend.com/install | php
+curl -s https://osmanorhan.github.io/fakend/install.php | php
 ```
 #### How to define models for Fakend
 
@@ -71,23 +71,44 @@ You need to generate model files in ember first. Then you need to add class prop
 ```
 # author.js
 ```js
-import Model from 'ember-data/model';
-
-export default Model.extend({
-    firstName: DS.attr('string'), /* {"type":"firstName", "parameters": {}} */
-    lastName: DS.attr('string'), /* {"type":"lastName", "parameters": {}} */
-    avatar: DS.attr('string'), /* {"type":"imageURL", "parameters": {"type":"avatar","required":false}} */
-});
+{
+    "attrs": [
+        {
+            "fieldName": "firstName",
+            "attributeType": "firstName",
+            "parameters": {}
+        },
+        {
+            "fieldName": "lastName",
+            "attributeType": "lastName",
+            "parameters": {}
+        },
+        {
+            "fieldName": "avatar",
+            "attributeType": "imageURL",
+            "parameters": {"type":"avatar","required":false}
+        }
+    }
+}
 ```
 # comment.js
 ```js
-import Model from 'ember-data/model';
-
-export default Model.extend({
-    post: DS.belongsTo('post'), /* {"type":"post", "parameters": {"required": true}} */
-    comment: DS.attr('string'), /* {"type":"description", "parameters": {"length":50}} */
-});
-
+{
+    "attrs": [
+        {
+            "fieldName": "comment",
+            "attributeType": "description",
+            "parameters": {"length":50}
+        }
+    },
+    "belongsTo": [
+        {
+            "fieldName": "post",
+            "attributeType": "post",
+            "parameters": {"required":true}
+        }
+    ]
+}
 ```
 
 ### Parameters
@@ -114,14 +135,14 @@ html | - | returns html formatted text
 parser.php in Fakend/Bin is used to generate php model classes. You need to navigate this folder first then you can execute following 
 command to generate schema files.
 ```sh
-parser.php generate path [modelName]
+php parser generate [modelName]
 ```
 path is full path of ember model folder. It is required. If you provide just this option, fakend will generate php schema classes all models.
 modelName is single model name to generate/update single model file. It is optional.
 
 ```sh
 #Example command
-php parser.php generate ../../../../app/models/ post.js
+php parser post.js
 ```
 This will generate Schema/Post.php and will consist of ember model's attributes.
 
