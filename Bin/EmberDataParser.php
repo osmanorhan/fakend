@@ -62,9 +62,9 @@ class EmberDataParser extends Command
         $fileName = explode('.',$file);
         $className = S::create($fileName[0])->upperCamelize();
         $attrBody = 'return [';
-            if(array_key_exists('attr',$model))
+            if(array_key_exists('attrs',$model))
             {
-                foreach ($model['attr'] as  $attr)
+                foreach ($model['attrs'] as  $attr)
                 {
                     $attrBody .= "'".$attr['fieldName']."'"."=>"." array('type' => '".$attr['attributeType']."', 'parameters' => '".$attr['parameters']."'),";
                 }
@@ -103,37 +103,83 @@ class EmberDataParser extends Command
                     );
             $prettyPrinter = Build::prettyPrinter();
             $generatedCode = $prettyPrinter->generateCode($file);
-            file_put_contents('../Schemas/'.$className.'.php', $generatedCode);
+            file_put_contents('api/Schemas/'.$className.'.php', $generatedCode);
+            $loadclass = fopen("api/Schemas/loadclasses.php", "a");
+            fwrite($loadclass, "require_once __DIR__ . '/".$className.".php';\n");
+            fclose($loadclass);
+            $this->addMethods($className);  
     }
     protected function parseModelSchema($modelFile)
     {
         $filePath = $this->path.$modelFile;
         $result = array();
-            if (($handle = fopen($filePath, "r")) !== FALSE)
-            {
-                while (($data = fgetcsv($handle, 1000, "\n")) !== FALSE) {
-                    if(array_key_exists(0,$data))
-                    {
-                        $line = explode(',',trim($data[0]));
-                        $commentSettings = explode('/*',trim($data[0]));
-                        $settings = json_decode(trim(str_replace('*/','',$commentSettings[1])));
-                        $field = explode(':',$line[0]);
-                        $fieldName = $field[0];
-                        $attribute = explode('.',$field[1]);
-                        $attribute = explode('(',$attribute[1]);
-                        $attributeName = $attribute[0];
-                        $attributeType = str_replace(array(')','\''),'',$attribute[1]);
-                        if(!empty($settings->type))
-                        {
-                            $attributeType = $settings->type;
-                        } else {
-                            $attributeType = str_replace(array(')','\''),'',$attribute[1]);
-                        }
-                        $result[$attributeName][] = array('fieldName' =>  $fieldName, 'attributeType' => $attributeType, 'parameters' => json_encode($settings->parameters));
-                    }
-                }
-                fclose($handle);
-            }
-        return $result;
-        }
+        $model = file_get_contents($this->path.$modelFile);
+        $json = json_decode($model, true);
+        return $json;
     }
+    protected function addMethods($className){
+    $methods = <<<'EOT'
+    
+    $app->match('/%classname%', function(Request $request) use ($app) {
+    if($request->getMethod() == 'OPTIONS') {
+        return new Response('', 200);
+    }
+    $class = FakendFactory::create('%classname%');
+    $class->setSerializer(new JsonApiSerializer());
+    $return = $class->setMeta(array('totalCount' => rand(10,100)))->getMany(rand(5,10));
+    return new Response($return, 200, array(
+        'Content-Type' => 'application/json',
+    ));
+    })->method('GET|OPTIONS');
+    $app->match('/%classname%/{id}', function($id, Request $request) use ($app) {
+    if($request->getMethod() == 'OPTIONS') {
+        return new Response('', 200);
+    }
+    $class = FakendFactory::create('%classname%');
+    $class->setSerializer(new JsonApiSerializer());
+    $return = $class->get($id);
+    return new Response($return, 200, array(
+        'Content-Type' => 'application/json',
+    ));
+    })->method('GET|OPTIONS');
+    $app->match('/%classname%/{id}', function($id, Request $request) use ($app) {
+    if($request->getMethod() == 'OPTIONS') {
+        return new Response('', 200);
+    }
+    $return = json_encode(array());
+    return new Response($return, 200, array(
+        'Content-Type' => 'application/json',
+    ));
+    })->method('DELETE|OPTIONS');
+    $app->match('/%classname%', function(Request $request) use ($app) {
+    if($request->getMethod() == 'OPTIONS') {
+        return new Response('', 200);
+    }
+    $class = FakendFactory::create('%classname%');
+    $class->setSerializer(new JsonApiSerializer());
+    $return = $class->get(rand(1,10000));
+    return new Response($return, 200, array(
+        'Content-Type' => 'application/json',
+    ));
+    })->method('POST|OPTIONS');
+    $app->match('/%classname%/{id}', function($id, Request $request) use ($app) {
+    if($request->getMethod() == 'OPTIONS') {
+        return new Response('', 200);
+    }
+    $class = FakendFactory::create('%classname%');
+    $class->setSerializer(new JsonApiSerializer());
+    $return = $class->get($id);
+    return new Response($return, 200, array(
+        'Content-Type' => 'application/json',
+    ));
+    })->method('POST|PUT|OPTIONS');
+    $app->run();
+EOT;
+    ob_start();
+    passthru("wc -l < api/index.php | awk '{s=$1-1} END {print s}' | xargs -I s head -n s api/index.php");
+    $index = trim(ob_get_clean());
+    $indexFile = fopen("api/index.php", "w");
+    fwrite($indexFile, $index.str_replace("%classname%", $className, $methods) );
+    fclose($indexFile);
+    }
+}
