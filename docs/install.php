@@ -5,7 +5,7 @@ initFakend(is_array($args) ? $args : array());
 function initFakend($argv)
 {
 
-    exec('composer require brewinteractive/fakend:dev-update', $composerExecOut, $composerExecReturn); 
+    exec('composer require brewinteractive/fakend', $composerExecOut, $composerExecReturn); 
     if ($composerExecReturn === 0){
         echo "Composer packages initiated...  \n";
         if(!is_dir('api')){
