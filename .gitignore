@@ -1,5 +1,5 @@
 /php/*
 /vendor/*
 /nginx/*
-docker-compose.yml
+/docker-compose.yml
 composer.lock
