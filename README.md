@@ -5,17 +5,17 @@ Fakend provides mock api from json schemas. It has been written in PHP and sits 
 2. <https://github.com/fzaninotto/Faker>
 3. <https://github.com/memio/memio>
 
-It had been designed to provide mock API specifically for ember-data but this update changes model notation from ember-data model to global JSON annotation to provide more flexible mock API backend for all frontend apps.
+It had been designed to provide mock API specifically for ember-data but this update changes model notation from ember-data model to global JSON notation to provide more flexible mock API backend for all frontend apps.
 
 #### How to get
 
 ```sh
-# Init Fakend
+# Install Fakend
 curl -s https://osmanorhan.github.io/fakend/install.php | php
 ```
 #### How to define models for Fakend
 
-You need to generate model files in ember first. Then you need to add class properties each line as comment as shown:
+You need to generate model files first. You have to place model files to **/api/Models/** directory then you need to add class properties as shown:
 
 # post.js
 
@@ -68,7 +68,9 @@ You need to generate model files in ember first. Then you need to add class prop
         }
     ]
 }
+
 ```
+### To resolve belongsTo:
 # author.js
 ```js
 {
@@ -91,6 +93,7 @@ You need to generate model files in ember first. Then you need to add class prop
     }
 }
 ```
+### To resolve hasMany:
 # comment.js
 ```js
 {
@@ -118,58 +121,65 @@ Option  | Parameters | Description
 id | - | return id for record
 title | length[integer] | title formatted string
 description | length[integer], html[boolean] | long text formatted string
-numberBetween | min[integer], max[integer] | provies a number given range
+numberBetween | min[integer], max[integer] | provides a number in given range
 date | from[string], e.g: -4 year, to[string] e.g +1 day | returns a iso_8601 date in given range
 boolean | - | returns boolean value in 50% change
-random | vales[array] | return selected value in given array  
+random | vales[array] | return selected value from given array  
 url | - | returns random rul 
 json | - | -
-imageUrl | required[boolean], type['avatar or default'] | returns an random image url from lorempixel.com
+imageUrl | required[boolean], type['avatar or default'] | returns a random image url from lorempixel.com
 mimeType | - | returns mime type for files
 firstname | - | returns real name
 lastName | - | returns real lastname
 html | - | returns html formatted text
 
-#### How to generate model classes
-
-parser.php in Fakend/Bin is used to generate php model classes. You need to navigate this folder first then you can execute following 
-command to generate schema files.
+#### How to generate model class
+First, you
+"parser" executable symbolic link has been generated during install progress in first step. When you navigate to root directory folder then you can execute following command to generate schema files.
 ```sh
 php parser generate [modelName]
 ```
-path is full path of ember model folder. It is required. If you provide just this option, fakend will generate php schema classes all models.
-modelName is single model name to generate/update single model file. It is optional.
+If you do not provide modelName, fakend will generate php schema classes for all models. **modelName** is single model name to generate/update single model file. 
 
 ```sh
 #Example command
 php parser post.js
 ```
-This will generate Schema/Post.php and will consist of ember model's attributes.
+This will generate **/api/Schema/Post.php** and will consist of model's attributes.
 
 #### How to use 
+Fakend ships with basic silex app at api/ directory and each Fakend provides CRUD metods(GET/POST/PUT/DELETE) endpoint will be generated and placed at this file. New endpoints will be append end of this file.
 
-Fakend is only provides GET metods currently. In order to generate json files, you need to add Fakend class in your PHP file first. 
+If you want to optimize or change methods you can use followings.
+In index.php:
+
 ```php
 use Fakend\FakendFactory;
 ```
+This adds fakend base class.
+
 Fakend uses League's Fractal library for serializations. You can use following default fractal serializers or you can use your own custom serializer class to format your response data.
+
 ```php
 use League\Fractal\Serializer\JsonApiSerializer;
 use League\Fractal\Serializer\DataArraySerializer;
 use League\Fractal\Serializer\ArraySerializer;
 ```
-A basic custom .net web api serializer has been added to project as an example.
+
+A basic custom .NET web api serializer has been added to project as an example.
+
 ```php
 use Fakend\Presentation\Serializers\WebApiSerializer;
 ```
 
 Then you need to initialize related model class and need to pass serializer.
+
 ```php
 $post = FakendFactory::create('post');
 $post->setSerializer(new JsonApiSerializer());
 $return = $post->setMeta(array('totalCount' => 11))->getMany(5);
 ```
-You can use:
+From **$post** variable, you can call:
 
 
 Method  | Description
@@ -181,7 +191,7 @@ Method  | Description
 `setBelongsToByName(name, belongsToObject)` |  to set belongsto property by name.
 `setParentObject(parent)` |  to set same parent object for all recursive models.
 
-### Silex example for above models
+### Silex example 
 
 ```php
 $app->match('/posts', function(Request $request) use ($app) {
@@ -217,6 +227,6 @@ $app->match('/posts/{id}', function($id, Request $request) use ($app) {
 })->method('DELETE|OPTIONS');
 ```
 
-You can find sample outputs for posts as json api and data api formats in `samples/` folder.
+You can find sample outputs for this example in `samples/` folder.
 
 
