@@ -16,7 +16,7 @@ use Memio\Model\Contract;
 use Memio\Model\FullyQualifiedName;
 use Stringy\Stringy as S;
 
-class EmberDataParser extends Command
+class DataParser extends Command
 {
     protected $path = 'api/Models/';
     protected function configure()
@@ -106,7 +106,7 @@ class EmberDataParser extends Command
     protected function parseModelSchema($modelFile)
     {
         $result = array();
-        $model = file_get_contents($this->path.$modelFile);
+        $model = file_get_contents($this->path.$modelFile.'.js');
         $json = json_decode($model, true);
         return $json;
     }
