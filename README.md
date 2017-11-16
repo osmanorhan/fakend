@@ -195,6 +195,10 @@ Method  | Description
 `setBelongsToByName(name, belongsToObject)` |  to set belongsto property by name.
 `setParentObject(parent)` |  to set same parent object for all recursive models.
 
+
+### Docker 
+We provide a docker container(PHP & NGINX) at root directory. You just need to build & up.
+
 ### Silex example 
 
 ```php
