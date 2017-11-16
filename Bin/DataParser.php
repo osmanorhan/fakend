@@ -1,6 +1,6 @@
 <?php
 namespace Fakend\Bin;
-
+require_once __DIR__ . '/../Lib/Inflect.php';
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -40,8 +40,10 @@ class DataParser extends Command
         } else {
             if ($handle = opendir($this->path))
             {
-                while (false !== ($entry = readdir($handle))) {
-                    $this->createClass($entry);
+                while (false !== ($entry = readdir($handle)) ) {
+                    if('..' !== $entry && '.' !== $entry ){
+                         $this->createClass($entry);
+                    }
                 }
                 closedir($handle);
             }
@@ -97,23 +99,27 @@ class DataParser extends Command
                     );
             $prettyPrinter = Build::prettyPrinter();
             $generatedCode = $prettyPrinter->generateCode($file);
-            file_put_contents('api/Schemas/'.$className.'.php', $generatedCode);
-            $loadclass = fopen("api/Schemas/loadclasses.php", "a");
-            fwrite($loadclass, "require_once __DIR__ . '/".$className.".php';\n");
-            fclose($loadclass);
-            $this->addMethods($className);  
+            $schemaDir =  'api/Schemas/';
+            $schemaFile = $schemaDir.$className.'.php';
+            if(!file_exists($schemaFile)){
+                $loadclass = fopen($schemaDir."loadclasses.php", "a");
+                fwrite($loadclass, "require_once __DIR__ . '/".$className.".php';\n");
+                fclose($loadclass);
+                $this->addMethods($className);  
+            }
+            file_put_contents($schemaFile, $generatedCode);
     }
     protected function parseModelSchema($modelFile)
     {
         $result = array();
-        $model = file_get_contents($this->path.$modelFile.'.js');
+        $model = file_get_contents($this->path.$modelFile);
         $json = json_decode($model, true);
         return $json;
     }
     protected function addMethods($className){
     $methods = <<<'EOT'
     
-    $app->match('/%classname%', function(Request $request) use ($app) {
+    $app->match('/%classnames%', function(Request $request) use ($app) {
     if($request->getMethod() == 'OPTIONS') {
         return new Response('', 200);
     }
@@ -166,13 +172,16 @@ class DataParser extends Command
         'Content-Type' => 'application/json',
     ));
     })->method('POST|PUT|OPTIONS');
+    
     $app->run();
 EOT;
+    $pluralClassName = Inflect::pluralize($className);
     ob_start();
     passthru("wc -l < api/index.php | awk '{s=$1-1} END {print s}' | xargs -I s head -n s api/index.php");
     $index = trim(ob_get_clean());
     $indexFile = fopen("api/index.php", "w");
-    fwrite($indexFile, $index.str_replace("%classname%", $className, $methods) );
+    fwrite($indexFile, $index.str_replace(array("%classname%", "%classnames%"), array($className,$pluralClassName), $methods));
     fclose($indexFile);
+    ob_end_flush();
     }
 }

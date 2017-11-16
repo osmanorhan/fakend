@@ -18,12 +18,13 @@ function initFakend($argv)
             exec('mkdir api/Models', $modelDirOut, $modelDirReturn);
         }
         exec('ln -s vendor/brewinteractive/fakend/Bin/parser.php parser');
-        exec('cp vendor/brewinteractive/fakend/samples/docker-compose.yml api/docker-compose.yml', $dockerOut, $dockerReturn);
-        exec('cp -R vendor/brewinteractive/fakend/samples/nginx api/nginx', $nginxOut, $nginxReturn);
-        exec('cp -R vendor/brewinteractive/fakend/samples/php api/php', $phpOut, $phpReturn);
+        exec('cp vendor/brewinteractive/fakend/samples/docker-compose.yml docker-compose.yml', $dockerOut, $dockerReturn);
+        exec('cp -R vendor/brewinteractive/fakend/samples/nginx nginx', $nginxOut, $nginxReturn);
+        exec('cp -R vendor/brewinteractive/fakend/samples/php php', $phpOut, $phpReturn);
         exec('cp vendor/brewinteractive/fakend/samples/index.php api/index.php', $copyIndexOut, $copyIndexReturn);
         $loadclasses = fopen("api/Schemas/loadclasses.php", "w");
-        fwrite($loadclasses, "<?php\n");
+        fwrite($loadclasses, "<?php  
+        \n");
         fclose($loadclasses);
         if($copyIndexReturn === 0 && $apiDirReturn === 0 && $schemasDirReturn === 0){
             echo "Files copied... \n";
