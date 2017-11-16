@@ -13,6 +13,10 @@ It had been designed to provide mock API specifically for ember-data but this up
 # Install Fakend
 curl -s https://osmanorhan.github.io/fakend/install.php | php
 ```
+##### Quick Look:
+
+![Fakend Install Gif](https://raw.githubusercontent.com/osmanorhan/fakend/master/docs/fakend-install.gif)
+
 #### How to define models for Fakend
 
 You need to generate model files first. You have to place model files to **/api/Models/** directory then you need to add class properties as shown:
